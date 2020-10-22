@@ -1,4 +1,5 @@
 import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -12,13 +13,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 public class View extends Application {
 	
 	private static final Integer STARTTIME = 15;
 	private Timeline timeline;
 	private Label timerLabel = new Label();
-	private Integer timeSeconds = STARTTIME;
+	private IntegerProperty timeSeconds = new SimpleIntegerProperty(STARTTIME);
 
 	public static void main(String[] args) {
 		Application.launch(args);
@@ -33,7 +36,8 @@ public class View extends Application {
 		Scene scene = new Scene(root, 300, 250);
 
 		// Configure the Label
-		timerLabel.setText(timeSeconds.toString());
+		//timerLabel.setText(timeSeconds.toString());
+		timerLabel.textProperty().bind(timeSeconds.asString()); // bind timeseconds to display in label
 		timerLabel.setTextFill(Color.RED);
 		timerLabel.setStyle("-fx-font-size: 4em;");
 
@@ -49,31 +53,15 @@ public class View extends Application {
 					timeline.stop();
 				}
 
-				timeSeconds = STARTTIME;
-
-				//update timer label
-				timerLabel.setText(timeSeconds.toString());
+				timeSeconds.set(STARTTIME);
 				timeline = new Timeline();
-				timeline.setCycleCount(Timeline.INDEFINITE);
 				timeline.getKeyFrames().add(
-						new KeyFrame(Duration.seconds(1),
-							new EventHandler<ActionEvent>() {
-								
-								//keyframe event handler
-								@Override
-								public void handle(ActionEvent event) {
-									timeSeconds--;
-									//update timerLabel
-									timerLabel.setText(
-										timeSeconds.toString());
-									if(timeSeconds <= 0) {
-										timeline.stop();
-									}
-								}
-						}));
+						new KeyFrame(Duration.seconds(STARTTIME + 1),
+						new KeyValue(timeSeconds, 0)));	
 				timeline.playFromStart();
 			}
 		});
+		
 
 		//create and config VBox
 		VBox vb = new VBox(20);
